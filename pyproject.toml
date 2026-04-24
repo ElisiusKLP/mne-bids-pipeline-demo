@@ -1,0 +1,16 @@
+[project]
+name = "mne_bids_demo"
+version = "0.1.0"
+description = "A demo of using MNE-BIDS-Pipeline"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "marimo>=0.23.1",
+    "mne>=1.12.0",
+    "mne-bids>=0.18.0",
+    "torch>=2.11.0",
+]
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
