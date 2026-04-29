@@ -135,7 +135,9 @@ def _(mo):
     mo.md(r"""
     The following function was made to convert data collected from a CTF scanner into a BIDS format.
 
-    The raw CTF data is structured like this:
+    The raw CTF data is structured like the following.
+
+    **Non-BIDS CTF Data example:**
     ```
     0001_effortlearning_20250805_01.ds
     │   ├── 0001_effortlearning_20250805_01.acq
@@ -165,7 +167,9 @@ def _(mo):
     (...)
     ```
 
-    After running the create_bids_directory as defined below, the data is transformed into the following BIDS structure:
+    After running the create_bids_directory as defined below, the data is transformed into the following BIDS structure.
+
+    **BIDS Structure example:**
     ```
     ── README
     ├── dataset_description.json
@@ -199,6 +203,7 @@ def _(mo):
 @app.cell
 def _(mo):
     mo.md(r"""
+    **Non-BIDS CTF to BIDS function example:**
     ```python
     import numpy as np
     from pathlib import Path
@@ -413,7 +418,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    An example of running only preprocessing:
+    **Example of running pipeline with preprocessing only:**
     ```bash
     mne_bids_pipeline --config=config/config_effort.py --steps=preprocessing
     ```
@@ -445,7 +450,7 @@ def _(mo):
 
     In this file you can change status from ``good -> bad`` and optionally add a description for the artifact e.g. blinks, heart etc.
 
-    The edited rows could look like this:
+    **The edited rows could look like this:**
     ```tsv
     component	type	description	status	status_description
     3	ica	Independent Component	bad	Manual: blink artifact
@@ -460,7 +465,7 @@ def _(mo):
     mo.md(r"""
     Re-run the "apply ICA" step after specifying ICA exclusion file.
 
-    !Important: Make sure that each of the .tsv files are saved before applying the ICA. To be sure, close down all open tabs with tsvs.
+    **! Important:** Make sure that each of the .tsv files are saved before applying the ICA. To be sure, close down all open tabs with tsvs.
 
     ```bash
     mne_bids_pipeline --config=/path/to/your/custom_config.py --steps=preprocessing/apply_ica
