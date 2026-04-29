@@ -12,3 +12,6 @@ __pycache__/
 data/
 logs/
 foreign_data/
+notebooks_exploratory/
+
+draft.py
