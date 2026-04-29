@@ -298,6 +298,102 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
+    **Example: Preprocessing-only configuration**
+
+    This configuration is intended to run only the `preprocessing` steps of the pipeline.
+    It contains common preprocessing operations you typically run before any sensor- or source-level analyses:
+    - Detect and mark bad/flat/noisy channels
+    - (Optional) Maxwell filtering for Elekta/Neuromag systems to reduce environmental noise
+    - Band-pass filtering to remove slow drifts and high-frequency noise
+    - Line-noise removal (zapline)
+    - Optional resampling
+    - ICA for ocular/cardiac artifact correction
+
+    Below is a minimal example config with inline comments explaining the preprocessing choices.
+
+    ```python
+    # CONFIG
+    # Runtime Settings
+    n_jobs = 1  # Use 1 for debugging; increase to use more cores (e.g. 4 or 8) for faster processing
+    parallel_backend = "loky"  # Stable joblib backend for multiprocessing
+
+    # General Settings
+    bids_root = "data/effort_bids/"  # Path to BIDS dataset root
+    sessions = "all"  # Process all sessions found in BIDS
+    task = "effort"
+    allow_missing_sessions = False  # Fail if expected sessions are missing (safer for demos)
+    subjects = ["01","02"]  # Example subset; set to 'all' or None to auto-detect
+    exclude_subjects = []
+
+    # Data / plotting
+    ch_types = ["meg"]  # Use ['eeg'] for EEG datasets
+    data_type = "meg"
+    eog_channels = None  # Use real EOG channels if present; None disables synthetic EOG
+    plot_psd_for_runs = "all"  # Create PSD QC plots for each run
+    random_state = 912  # Seed for ICA and other stochastic steps
+
+    # Preprocessing — overview of the chosen steps:
+    # 1) Detect bad/flat/noisy channels to exclude them from analyses
+    # 2) Optional Maxwell filtering to reduce environmental noise on Elekta systems
+    # 3) Band-pass filtering (here 1-60 Hz) to remove slow drifts and high-frequency noise
+    # 4) Zapline for narrowband line-noise removal (50 or 60 Hz)
+    # 5) (Optional) resample to speed up downstream processing
+    # 6) Fit ICA and mark components for removal (blink, heartbeat, etc.)
+
+    find_breaks = False  # Detect long breaks (periods with no events); enable if your recordings have rest gaps
+    find_flat_channels_meg = True  # Detect flat MEG channels and mark them as bad
+    find_noisy_channels_meg = True  # Detect noisy MEG channels automatically
+    # Maxwell filtering (and head compensation)
+    use_maxwell_filter = False  # Disabled by default; enable for Elekta/Neuromag data when cal/ctc available
+    mf_cal_missing = "warn"  # Warn if calibration file is missing
+    mf_ctc_missing = "warn"  # Warn if crosstalk file is missing
+    mf_mc = False  # Movement compensation off by default; enable only with appropriate metadata
+
+    # Filtering
+    l_freq = 1  # High-pass cutoff (Hz) to remove slow drifts; set to None to skip
+    h_freq = 60  # Low-pass cutoff (Hz) to remove high-frequency noise
+    zapline_fline = 50.0  # Line-noise frequency to target (50 or 60 Hz depending on region)
+
+    # Resampling
+    raw_resample_sfreq = None  # Keep original sampling frequency; set e.g. 300 to downsample for speed
+
+    # Epochs
+    epochs_tmin = -0.2  # Time before event (s)
+    epochs_tmax = 1  # Time after event (s)
+    baseline = (None, 0)  # No Baseline correction window
+    conditions = ["force_start", "feedback_onset", "cue_onset"]  # Events used for epoching
+
+    # Artifact removal
+    regress_artifact = None  # Use channel regression for external artifact channels if available
+    spatial_filter = "ica"  # ICA is preferred here for MEG; SSP is faster but less specific
+    # SSP can be used for faster and more automatic rejection but with higher risk of removing neural signal
+    process_raw_clean = True  # Apply cleaning to raw data (slower) before epoching to improve ICA results
+    ica_reject = None  # Channel rejection thresholds for ICA fitting (None uses sensible defaults)
+    ica_algorithm = "picard-extended_infomax"  # 'picard' is fast; 'extended-infomax' is robust
+    ica_l_freq = 1.0  # Lower bound for ICA preprocessing; keeps slow artifacts for detection
+    ica_h_freq = 100  # Upper bound for ICA preprocessing; include muscle frequencies if relevant
+    ica_n_components = 20  # Number of ICA components; increase if many artifacts expected
+    ica_use_ecg_detection = True  # Try to auto-detect ECG components
+    ica_ecg_threshold = 0.1  # ECG detection sensitivity; lower = more sensitive
+    ica_use_eog_detection = True  # Try to auto-detect EOG (blinks) components
+    ica_eog_threshold = 3.0  # EOG detection threshold (depends on channel scaling)
+    ica_use_icalabel = False  # ICLabel currently works for EEG only; enable for EEG datasets
+
+    process_empty_room = False  # Set True if you have empty-room recordings for noise modeling
+
+    # Sensor-level Analysis
+    # Pass
+
+    # Source-level Analysis
+    # Pass
+    ```
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     ## 3. Running the pipeline
     """)
     return
