@@ -309,7 +309,7 @@ def _(mo):
     - Optional resampling
     - ICA for ocular/cardiac artifact correction
 
-    Below is a minimal example config with inline comments explaining the preprocessing choices.
+    Below is an example config with inline comments explaining the preprocessing choices. Note: There are more options for configurations, described in the template file. The specific settings should be tailored to the relevant data and analysis questions raised.
 
     ```python
     # CONFIG
