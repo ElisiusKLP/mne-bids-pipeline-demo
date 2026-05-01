@@ -8,9 +8,13 @@ dependencies = [
     "marimo>=0.23.3",
     "mne>=1.12.0",
     "mne-bids>=0.18.0",
+    "mne-bids-pipeline>=1.10.1",
     "torch>=2.11.0",
 ]
 
 [tool.pyright]
 venvPath = "."
 venv = ".venv"
+
+[tool.marimo.runtime]
+pythonpath = ["src"] # Imports from src can be used directly in the notebook without needing to install the package. This is useful for development.

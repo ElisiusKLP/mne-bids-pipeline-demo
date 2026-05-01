@@ -9,7 +9,7 @@ def _(mo):
     mo.md(r"""
     # DEMO: MNE BIDS Pipeline
 
-    **April 2026**
+    **May 2026**
     """)
     return
 
@@ -316,6 +316,7 @@ def _(mo):
 
     Below is an example config with inline comments explaining the preprocessing choices. Note: There are more options for configurations, described in the template file. The specific settings should be tailored to the relevant data and analysis questions raised.
 
+    **Configuration file example:**
     ```python
     # CONFIG
     # Runtime Settings
@@ -510,7 +511,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
- 
+    # Try It Yourself with BIDS data
     """)
     return
 
@@ -518,7 +519,37 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ## 6. Try It Yourself with BIDS data
+    ## Setup
+    """)
+    return
+
+
+@app.cell
+def _():
+    import mne
+    from pathlib import Path
+    from mne_bids import BIDSPath, read_raw_bids
+    import os
+    import numpy as np
+
+    return BIDSPath, Path, mne, np, os, read_raw_bids
+
+
+@app.cell
+def _(Path, os):
+    if Path.cwd().name == "notebooks":
+        root = Path.cwd().parent
+        os.chdir(root)
+    else:
+        root = Path.cwd()
+    print(f"Current working directory: {root}")
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## Download demo data
     """)
     return
 
@@ -526,7 +557,156 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
- 
+    Dataset:
+    https://openneuro.org/datasets/ds004330/versions/1.0.0
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    First we retrieve a dataset on perception of  visual stimuli of different complexity: drawings, sketches, and photos.
+
+    **Datalad clone repository (Run in terminal):**
+    ```bash
+    mkdir data # create data directory
+
+    cd data # navigate to the data folder
+
+    datalad clone https://github.com/OpenNeuroDatasets/ds007640.git # clone the dataset repo
+    ```
+
+    For simplicity we choose the first run of the first subject, which is single condition of "drawing" stimuli.
+
+    Download the raw MEG data for subject 01, session 01, run 01.
+
+    **Datalad download the single MEG file (Run in terminal):**
+    ```bash
+    datalad get "data/ds004330/sub-01/ses-01/meg/sub-01_ses-01_task-main_run-01_meg.fif"
+    ```
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## Investigate events
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    To know what events to code in first a quick overview of the data is needed. MNE is used to load in a single data file.
+
+    For creating the epochs we need to specify the labelled conditions in the event_id keys. The next code investigates these
+    """)
+    return
+
+
+@app.cell
+def _(BIDSPath, Path, read_raw_bids):
+    # First we specify the BIDSPath to load data fromw
+    filepath = BIDSPath(
+        subject="01",
+        session="01",
+        task="main",
+        run="01",
+        root=Path("data/ds004330"),
+    )
+
+    raw = read_raw_bids(bids_path=filepath)
+
+    raw.info
+    return (raw,)
+
+
+@app.cell
+def _(mne, np, raw):
+    # we loda the events from the annotations
+    events, event_id = mne.events_from_annotations(raw)
+
+    print(event_id)
+
+    print(event_id.keys())
+
+    # check the the number of unique events
+    print(f"Number of total events: {len(events)}")
+    print(len(np.unique(events[:, 2])))
+    print(f"Unique events: {np.unique(events[:, 2])}")
+    print(f"Event counts: {np.bincount(events[:, 2])}")
+    print(f"length of event counts: {len(np.bincount(events[:, 2]))}")
+    return event_id, events
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    We can see that there are 361 events in total and 48 different unique drawing stimuli called "Drawing_XY".
+    Each of the stimuli are presented 7 to 8 times during the run.
+
+    This informs us to name the condition in the mne_bids_pipeline after each stimuli.
+    ```python
+    conditions = [f"Drawing_{i}" for i in range(1, 49)]
+    ```
+
+    This splits the epochs into each of the stimuli which could be interesting if we were doing a representational similarity analysis (RSA).
+
+    If we were more interested in the overall condition it would be helpful to do some preceeding work to code each of event_id keys with e.g. "drawing/drawing_1" for drawings.
+
+    In MNE such an event_id structure enables us to both compare the epochs on a condition level and stimuli level.
+    """)
+    return
+
+
+@app.cell
+def _(event_id, events, mne, raw):
+    # We can also visualise the events
+    fig = mne.viz.plot_events(
+        events, sfreq=raw.info["sfreq"], first_samp=raw.first_samp, event_id=event_id
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## Configure and Run pipeline
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    A simple preprocessing configuration for the purpose of the demo is given in the file ``config/config_demo`` in the repository.
+
+    We can now run the pipeline using the terminal command.
+
+    Run preprocessing pipeline (run in terminal):
+    ```bash
+    mne_bids_pipeline --config=config/config_demo.py --steps=preprocessing
+    ```
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    From the report file it looks like the ICA003 component is a blink artifact component. Therefore this is marked as "bad" in the ``data/ds004330/derivatives/mne-bids-pipeline/sub-01/ses-01/meg/sub-01_ses-01_proc-ica_components.tsv``.
+
+    ![ICA Comp plot demo data](media/ica_plot2.png)
+
+    We can now run the apply_ica step to apply the exclusion of that components
+
+    Run the apply ICA step (run in terminal):
+    ```bash
+    mne_bids_pipeline --config=config/config_demo.py --steps=preprocessing/apply_ica
+    ```
     """)
     return
 

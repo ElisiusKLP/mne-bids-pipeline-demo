@@ -4,11 +4,12 @@ n_jobs = 1
 parallel_backend = "loky" # used by joblib 
 
 # General Settings
-bids_root = "data/effort_bids/"
+bids_root = "data/ds004330/"
 sessions = "all"
-task = "effort"
+task = "main"
+exclude_runs = {"01": ["02","03","04","05","06","07","08","09"]}
 allow_missing_sessions = False
-subjects = ["01","02"]
+subjects = ["01"]
 exclude_subjects = []
 
 ch_types = ["meg"]
@@ -39,7 +40,7 @@ raw_resample_sfreq = None
 epochs_tmin = -0.2
 epochs_tmax = 1
 baseline = (None, 0)
-#conditions = ["drawing"]
+conditions = [f"Drawing_{i}" for i in range(1, 49)]
 
 # Artifact removal
 regress_artifact = None # Custom reference electrode channels for artifacts e.g. stord in ["MISC 001" (...)] 
