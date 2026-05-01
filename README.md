@@ -4,6 +4,11 @@
 
 This repository contains a guided marimo notebook that walks through the MNE BIDS Pipeline workflow end to end. It is meant to be read as a tutorial first, and then used as a small hands-on demo if you want to try the pipeline locally with the bundled example data.
 
+**The MNE BIDS Pipeline**
+https://github.com/mne-tools/mne-bids-pipeline
+
+https://mne.tools/mne-bids-pipeline/stable/
+
 ## How to use this repo
 
 If you want to read the notebook as a guide, open it directly in Molab:
@@ -31,6 +36,14 @@ It shows how to:
 - run preprocessing,
 - inspect ICA components,
 - and apply ICA exclusions.
+
+### Scope and limitations
+
+This guide/demo focuses on how to build a reusable, maintainable, and scalable processing pipeline using the MNE-BIDS ecosystem. It is intentionally NOT a methodological tutorial on electrophysiological signal-processing techniques (for example: filtering theory and choices, ICA theory and interpretation, SSP, Maxwell filtering, source reconstruction, or advanced artifact-removal methods). For those topics and best-practice guidance, consult the MNE documentation:
+
+- https://mne.tools/stable/
+
+and review the pipeline configuration reference in `config/config_template.py` for the parameter descriptions and recommended settings. The notebook shows how to wire these building blocks together in a pipeline; methodological decisions about how to preprocess or analyse your signals should be made with reference to domain resources and the MNE docs.
 
 ## Demo data
 
